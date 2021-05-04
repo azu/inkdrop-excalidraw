@@ -1,0 +1,11 @@
+{
+  "context-menu": {
+    ".CodeMirror": [
+      {
+        "label": "Create Excalidraw",
+        "command": "excalidraw:create"
+      }
+    ]
+  },
+  "menu": []
+}

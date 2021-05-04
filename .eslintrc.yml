@@ -1,0 +1,33 @@
+root: true
+plugins:
+  - prettier
+extends:
+  - plugin:prettier/recommended
+  - plugin:react/recommended
+parser: babel-eslint
+env:
+  browser: true
+  es6: true
+  mocha: true
+  node: true
+globals:
+  "$": true
+  inkdrop: true
+  app: true
+  _REACT_EXTENSION_PATH: true
+  BROWSER: true
+  fetch: true
+  URL: true
+  File: true
+  FileReader: true
+  Image: true
+  btoa: true
+  alert: true
+  emit: true
+rules:
+  no-useless-escape: 0
+  prefer-const: 2
+  no-unused-vars:
+    - 2
+    - argsIgnorePattern: ^_
+      varsIgnorePattern: ^_

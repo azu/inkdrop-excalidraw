@@ -1,0 +1,13 @@
+{
+  "presets": [
+    [
+      "@babel/preset-env",
+      {
+        "targets": {
+          "electron": "6.0.11"
+        }
+      }
+    ],
+    "@babel/preset-react"
+  ]
+}
