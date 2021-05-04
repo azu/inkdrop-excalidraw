@@ -18,7 +18,7 @@ Write a link with `!Excalidraw` caption like:
 [!Excalidraw](/path/to/file.excalidraw)
 ```
 
-Preview the note and you can edit the file as excalidraw file.
+Preview the note, and you can edit the file as excalidraw file.
 
 ![Preview](https://raw.githubusercontent.com/azu/inkdrop-excalidraw/main/img.png)
 
