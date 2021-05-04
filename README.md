@@ -20,7 +20,7 @@ Write a link with `!Excalidraw` caption like:
 
 Preview the note and you can edit the file as excalidraw file.
 
-![Preview](https://raw.githubusercontent.com/azu/inkdrop-excalidraw/master//img.png)
+![Preview](https://raw.githubusercontent.com/azu/inkdrop-excalidraw/main/img.png)
 
 **Limitation**
 
