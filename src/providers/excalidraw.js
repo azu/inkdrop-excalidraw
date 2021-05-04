@@ -4,6 +4,7 @@ import React from "react";
 import { useEffect, useState, useRef } from "react";
 import PropTypes from "prop-types";
 import { useDebouncedCallback } from "use-debounce";
+import { connect } from "react-redux";
 
 export function test(_) {
     return true; // true
@@ -49,7 +50,7 @@ DynamicExcalidraw.prototype.propTypes = {
     initialData: PropTypes.object
 };
 
-export default function ExcalidrawWrapper(props) {
+function ExcalidrawWrapper(props) {
     const excalidrawRef = useRef(null);
     const [viewModeEnabled] = useState(false);
     const [initialData, setInitialData] = useState(null);
@@ -74,7 +75,10 @@ export default function ExcalidrawWrapper(props) {
                 console.error("parse error on " + props.href, error);
                 setInitialData(DEFAULT_STATE);
             });
-    }, []);
+        return () => {
+            setInitialData(null);
+        };
+    }, [props.preview.renderId]);
     return (
         <div
             style={{
@@ -99,5 +103,12 @@ export default function ExcalidrawWrapper(props) {
 }
 
 ExcalidrawWrapper.prototype.propTypes = {
-    href: PropTypes.string
+    href: PropTypes.string,
+    preview: PropTypes.object
 };
+
+const connector = connect(
+    ({ preview }) => ({ preview }),
+    (dispatch) => ({ dispatch })
+);
+export default connector(ExcalidrawWrapper);
