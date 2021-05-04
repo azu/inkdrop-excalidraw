@@ -1,10 +1,11 @@
 import fs from "fs";
 import path from "path";
 import React from "react";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import PropTypes from "prop-types";
 import { useDebouncedCallback } from "use-debounce";
 import { connect } from "react-redux";
+import { _clearAppState, _clearElements } from "./helper";
 
 export function test(_) {
     return true; // true
@@ -16,7 +17,11 @@ const readExcalidraw = async (filePath) => {
 };
 
 let exportToSvg = null;
+
 const writeExcalidraw = async (filePath, { elements, appState }) => {
+    if (!fs.existsSync(filePath)) {
+        return;
+    }
     if (exportToSvg) {
         const svg = await exportToSvg({
             elements,
@@ -24,43 +29,36 @@ const writeExcalidraw = async (filePath, { elements, appState }) => {
         });
         const serializer = new XMLSerializer();
         const str = serializer.serializeToString(svg);
-        return fs.promises.writeFile(filePath + ".svg", str);
+        await fs.promises.writeFile(filePath + ".svg", str);
     }
-    // const serializedData = serializeAsJSON(elements, appState);
-    // return fs.promises.writeFile(filePath, serializedData, "utf-8");
-};
-
-function DynamicExcalidraw(props) {
-    const [Comp, setComp] = useState(null);
-    useEffect(() => {
-        if (!props.initialData) {
-            return;
-        }
-        // Load from local to avoid CSP error
-        window.EXCALIDRAW_ASSET_PATH = path.join(__dirname, "../../resources") + "/";
-        import("@excalidraw/excalidraw").then((comp) => {
-            exportToSvg = comp.exportToSvg;
-            setComp(comp.default);
-        });
-    }, [props.initialData]);
-    return <>{Comp && <Comp {...props} />}</>;
-}
-
-DynamicExcalidraw.prototype.propTypes = {
-    initialData: PropTypes.object
+    const serializedData = {
+        type: "excalidraw",
+        version: 2,
+        source: "file://",
+        elements: _clearElements(elements),
+        appState: _clearAppState(appState)
+    };
+    await fs.promises.writeFile(filePath, JSON.stringify(serializedData), "utf-8");
 };
 
 function ExcalidrawWrapper(props) {
     const excalidrawRef = useRef(null);
+    const [Comp, setComp] = useState(null);
     const [viewModeEnabled] = useState(false);
     const [initialData, setInitialData] = useState(null);
     const [zenModeEnabled] = useState(false);
     const [gridModeEnabled] = useState(false);
-    const onChange = useDebouncedCallback((elements, appState) => {
-        writeExcalidraw(props.href, { elements, appState }).catch((error) => {
-            console.error("save error on " + props.href, error);
-        });
-    }, 500);
+    const onChange = useDebouncedCallback(
+        useCallback(
+            (elements, appState) => {
+                writeExcalidraw(props.href, { elements, appState }).catch((error) => {
+                    console.error("save error on " + props.href, error);
+                });
+            },
+            [excalidrawRef]
+        ),
+        500
+    );
     useEffect(() => {
         const DEFAULT_STATE = {
             elements: [],
@@ -79,6 +77,17 @@ function ExcalidrawWrapper(props) {
             setInitialData(null);
         };
     }, [props.preview.renderId]);
+    useEffect(() => {
+        if (!initialData) {
+            return;
+        }
+        // Load from local to avoid CSP error
+        window.EXCALIDRAW_ASSET_PATH = path.join(__dirname, "../../resources") + "/";
+        import("@excalidraw/excalidraw").then((comp) => {
+            exportToSvg = comp.exportToSvg;
+            setComp(comp.default);
+        });
+    }, [initialData]);
     return (
         <div
             style={{
@@ -90,14 +99,16 @@ function ExcalidrawWrapper(props) {
                 maxHeight: "100%"
             }}
         >
-            <DynamicExcalidraw
-                ref={excalidrawRef}
-                initialData={initialData}
-                onChange={onChange}
-                viewModeEnabled={viewModeEnabled}
-                zenModeEnabled={zenModeEnabled}
-                gridModeEnabled={gridModeEnabled}
-            />
+            {Comp && (
+                <Comp
+                    ref={excalidrawRef}
+                    initialData={initialData}
+                    onChange={onChange}
+                    viewModeEnabled={viewModeEnabled}
+                    zenModeEnabled={zenModeEnabled}
+                    gridModeEnabled={gridModeEnabled}
+                />
+            )}
         </div>
     );
 }

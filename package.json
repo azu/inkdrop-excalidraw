@@ -23,6 +23,7 @@
     "watch": "babel src/ -d lib/ --watch",
     "dev": "babel src/ -s -d lib/ --watch",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,css}\"",
+    "prepublishOnly": "npm run build",
     "postinstall": "cp -r node_modules/@excalidraw/excalidraw/dist/ resources/"
   },
   "dependencies": {
