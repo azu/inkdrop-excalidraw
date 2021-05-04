@@ -2,11 +2,11 @@
   "name": "excalidraw",
   "main": "./lib/excalidraw.js",
   "version": "0.1.0",
-  "description": "Embed external contents in a note",
+  "description": "Allows Inkdrop to embed Excalidraw contents to a note. ",
   "keywords": [
     "inkdrop"
   ],
-  "repository": "https://github.com/inkdropapp/inkdrop-embed",
+  "repository": "https://github.com/azu/inkdrop-excalidraw",
   "license": "MIT",
   "engines": {
     "inkdrop": "^4.x"
