@@ -24,8 +24,9 @@ Preview the note and you can edit the file as excalidraw file.
 
 **Limitation**
 
-- Automatic saving is not supported yet
-    - Related Issue: <https://github.com/excalidraw/excalidraw/issues/3532>
+- :warning: Automatic saving is not supported yet
+  - Related Issue: <https://github.com/excalidraw/excalidraw/issues/3532>
+  - You need to save manually and override file
 
 ## Settings
 
