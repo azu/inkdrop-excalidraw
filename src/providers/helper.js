@@ -1,4 +1,5 @@
-// FIXME: https://github.com/excalidraw/excalidraw/blob/5c73c5813ce92d3c7b0610530f78ccb06a47d983/src/data/json.ts#L16-L27
+// FIXME: Copy from https://github.com/excalidraw/excalidraw/blob/5c73c5813ce92d3c7b0610530f78ccb06a47d983/src/data/json.ts#L16-L27
+// License: https://github.com/excalidraw/excalidraw/blob/master/LICENSE
 
 const APP_STATE_STORAGE_CONF = {
     theme: { browser: true, export: false },
