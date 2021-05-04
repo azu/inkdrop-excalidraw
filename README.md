@@ -41,3 +41,7 @@ You can change save dir from Preferences window:
 
 - You can't search embedded contents with keywords
 - Printing and exporting not supported as they are loaded asynchronously
+
+## License
+
+MIT
