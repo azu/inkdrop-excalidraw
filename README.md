@@ -24,6 +24,12 @@ Write a link with `!Excalidraw` caption like:
 [!Excalidraw](/path/to/file.excalidraw)
 ```
 
+or 
+
+```markdown
+![Excalidraw](/path/to/file.excalidraw.svg)
+```
+
 Preview the note, and you can edit the file as excalidraw file.
 
 ![Preview](https://raw.githubusercontent.com/azu/inkdrop-excalidraw/main/img.png)
