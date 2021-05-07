@@ -18,8 +18,8 @@ export function test(filePathOrUrl) {
         return false;
     }
     try {
-        // support .excalidraw.svg and .excalidraw.svg?updated=xxx
-        return filePathOrUrl.endsWith(".excalidraw") || filePathOrUrl.includes(".excalidraw.svg");
+        // support .excalidraw.png and .excalidraw.png?updated=xxx
+        return filePathOrUrl.endsWith(".excalidraw") || filePathOrUrl.includes(".excalidraw.png");
     } catch {
         return false;
     }
@@ -30,9 +30,9 @@ const readExcalidraw = async (filePath) => {
     return JSON.parse(content);
 };
 
-let exportToSvg = null;
+let exportToBlob = null;
 
-const updateNoteExcalidrawWithSvg = (filePath) => {
+const updateNoteExcalidrawWithImage = (filePath) => {
     /**
      * @type {CodeMirror.Editor}
      */
@@ -40,28 +40,28 @@ const updateNoteExcalidrawWithSvg = (filePath) => {
     const text = cm.getValue();
 
     const updatedText = text
-        // Update timstamp ![Excalidraw](/path/to/file.excalidraw.svg?updated=timestamp)
-        .replace(/(!\[Excalidraw]\((.*\.excalidraw)\.svg\?updated=.*?\))/g, (all, link, matchFilePath) => {
+        // Update timstamp ![Excalidraw](/path/to/file.excalidraw.png?updated=timestamp)
+        .replace(/(!\[Excalidraw]\((.*\.excalidraw)\.png\?updated=.*?\))/g, (all, link, matchFilePath) => {
             if (matchFilePath !== filePath) {
                 return all; // no change
             }
-            const svgFilePath = matchFilePath + ".svg";
-            if (fs.existsSync(svgFilePath)) {
+            const imageFilePath = matchFilePath + ".png";
+            if (fs.existsSync(imageFilePath)) {
                 const timeStamp = "?updated=" + dayjs().format("YYYY-MM-DD--HH-mm-ss");
-                return `![Excalidraw](${svgFilePath + timeStamp})`;
+                return `![Excalidraw](${imageFilePath + timeStamp})`;
             } else {
                 return all;
             }
         })
-        // [!Excalidraw](/path/to/file.excalidraw) → ![Excalidraw](/path/to/file.excalidraw.svg?updated=timestamp)
+        // [!Excalidraw](/path/to/file.excalidraw) → ![Excalidraw](/path/to/file.excalidraw.png?updated=timestamp)
         .replace(/(\[!Excalidraw]\((.*\.excalidraw)\))/g, (all, link, matchFilePath) => {
             if (matchFilePath !== filePath) {
                 return all; // no change
             }
-            const svgFilePath = matchFilePath + ".svg";
-            if (fs.existsSync(svgFilePath)) {
+            const imageFilePath = matchFilePath + ".png";
+            if (fs.existsSync(imageFilePath)) {
                 const timeStamp = "?updated=" + dayjs().format("YYYY-MM-DD--HH-mm-ss");
-                return `![Excalidraw](${svgFilePath + timeStamp})`;
+                return `![Excalidraw](${imageFilePath + timeStamp})`;
             } else {
                 return all;
             }
@@ -79,14 +79,20 @@ const writeExcalidraw = async (filePath, { elements, appState }) => {
     if (!fs.existsSync(filePath)) {
         return;
     }
-    if (exportToSvg) {
-        const svg = await exportToSvg({
+    if (exportToBlob) {
+        const blob = await exportToBlob({
             elements,
             appState
         });
-        const serializer = new XMLSerializer();
-        const str = serializer.serializeToString(svg);
-        await fs.promises.writeFile(filePath + ".svg", str);
+        await new Promise((resolve, reject) => {
+            const fileReader = new FileReader();
+            fileReader.onload = function () {
+                fs.promises
+                    .writeFile(filePath + ".png", Buffer.from(new Uint8Array(fileReader.result)))
+                    .then(resolve, reject);
+            };
+            fileReader.readAsArrayBuffer(blob);
+        });
     }
     const serializedData = {
         type: "excalidraw",
@@ -99,7 +105,7 @@ const writeExcalidraw = async (filePath, { elements, appState }) => {
 
     const enabledInlineImageWidgets = inkdrop.config.get("excalidraw.inlineImageWidgets");
     if (enabledInlineImageWidgets) {
-        updateNoteExcalidrawWithSvg(filePath);
+        updateNoteExcalidrawWithImage(filePath);
     }
 };
 
@@ -158,7 +164,7 @@ function ExcalidrawWrapper(props) {
         // Load from local to avoid CSP error
         window.EXCALIDRAW_ASSET_PATH = path.join(__dirname, "../../resources") + "/";
         import("@excalidraw/excalidraw").then((comp) => {
-            exportToSvg = comp.exportToSvg;
+            exportToBlob = comp.exportToBlob;
             setComp(comp.default);
         });
     }, [initialData]);

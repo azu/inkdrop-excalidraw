@@ -6,7 +6,7 @@ Note that printing and exporting are not supported since external contents are l
 
 ## Features
 
-- Save `.excalidraw` and `.exalidraw.svg` automatically
+- Save `.excalidraw` and `.exalidraw.png` automatically
 - Integrate with inkdrop's inline image widgets
 - FullScreen support
 
@@ -27,7 +27,7 @@ Write a link with `!Excalidraw` caption like:
 or 
 
 ```markdown
-![Excalidraw](/path/to/file.excalidraw.svg)
+![Excalidraw](/path/to/file.excalidraw.png)
 ```
 
 Preview the note, and you can edit the file as excalidraw file.
