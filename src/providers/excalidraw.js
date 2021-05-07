@@ -6,9 +6,21 @@ import PropTypes from "prop-types";
 import { useDebouncedCallback } from "use-debounce";
 import { connect } from "react-redux";
 import { _clearAppState, _clearElements } from "./helper";
+import dayjs from "dayjs";
 
-export function test(_) {
-    return true; // true
+export function test(filePathOrUrl) {
+    if (!filePathOrUrl) {
+        return false;
+    }
+    if (!path.isAbsolute(filePathOrUrl)) {
+        return false;
+    }
+    try {
+        // support .excalidraw.svg and .excalidraw.svg?updated=xxx
+        return filePathOrUrl.endsWith(".excalidraw") || filePathOrUrl.includes(".excalidraw.svg");
+    } catch {
+        return false;
+    }
 }
 
 const readExcalidraw = async (filePath) => {
@@ -18,7 +30,50 @@ const readExcalidraw = async (filePath) => {
 
 let exportToSvg = null;
 
+const updateNoteExcalidrawWithSvg = (filePath) => {
+    /**
+     * @type {CodeMirror.Editor}
+     */
+    const cm = inkdrop.getActiveEditor().cm;
+    const text = cm.getValue();
+
+    const updatedText = text
+        // Update timstamp ![Excalidraw](/path/to/file.excalidraw.svg?updated=timestamp)
+        .replace(/(!\[Excalidraw]\((.*\.excalidraw)\.svg\?updated=.*?\))/g, (all, link, matchFilePath) => {
+            if (matchFilePath !== filePath) {
+                return all; // no change
+            }
+            const svgFilePath = matchFilePath + ".svg";
+            if (fs.existsSync(svgFilePath)) {
+                const timeStamp = "?updated=" + dayjs().format("YYYY-MM-DD--HH-mm-ss");
+                return `![Excalidraw](${svgFilePath + timeStamp})`;
+            } else {
+                return all;
+            }
+        })
+        // [!Excalidraw](/path/to/file.excalidraw) → ![Excalidraw](/path/to/file.excalidraw.svg?updated=timestamp)
+        .replace(/(\[!Excalidraw]\((.*\.excalidraw)\))/g, (all, link, matchFilePath) => {
+            if (matchFilePath !== filePath) {
+                return all; // no change
+            }
+            const svgFilePath = matchFilePath + ".svg";
+            if (fs.existsSync(svgFilePath)) {
+                const timeStamp = "?updated=" + dayjs().format("YYYY-MM-DD--HH-mm-ss");
+                return `![Excalidraw](${svgFilePath + timeStamp})`;
+            } else {
+                return all;
+            }
+        });
+
+    if (text !== updatedText) {
+        cm.setValue(updatedText);
+    }
+};
+
 const writeExcalidraw = async (filePath, { elements, appState }) => {
+    if (elements.length === 0) {
+        return; // does not save when no element
+    }
     if (!fs.existsSync(filePath)) {
         return;
     }
@@ -39,38 +94,53 @@ const writeExcalidraw = async (filePath, { elements, appState }) => {
         appState: _clearAppState(appState)
     };
     await fs.promises.writeFile(filePath, JSON.stringify(serializedData), "utf-8");
+
+    const enabledInlineImageWidgets = inkdrop.config.get("excalidraw.inlineImageWidgets");
+    if (enabledInlineImageWidgets) {
+        updateNoteExcalidrawWithSvg(filePath);
+    }
 };
 
 function ExcalidrawWrapper(props) {
     const excalidrawRef = useRef(null);
     const [Comp, setComp] = useState(null);
     const [viewModeEnabled] = useState(false);
+    // excalidraw call onChange when startup
+    // for avoiding hidden updating
+    const [updateAtLeastOne, setUpdateAtLeastOne] = useState(false);
     const [initialData, setInitialData] = useState(null);
     const [zenModeEnabled] = useState(false);
     const [gridModeEnabled] = useState(false);
     const onChange = useDebouncedCallback(
         useCallback(
             (elements, appState) => {
-                writeExcalidraw(props.href, { elements, appState }).catch((error) => {
-                    console.error("save error on " + props.href, error);
+                if (!updateAtLeastOne) {
+                    return;
+                }
+                writeExcalidraw(props.filePath, { elements, appState }).catch((error) => {
+                    console.error("save error on " + props.filePath, error);
                 });
             },
-            [excalidrawRef]
+            [excalidrawRef, updateAtLeastOne]
         ),
         500
     );
+    const onPointerUpdate = useCallback(() => {
+        setUpdateAtLeastOne(true);
+    }, []);
+
     useEffect(() => {
         const DEFAULT_STATE = {
             elements: [],
             appState: { viewBackgroundColor: "#FFFFFF" }
         };
-        if (!props.href.endsWith(".excalidraw")) {
+        if (!props.filePath.endsWith(".excalidraw")) {
             return setInitialData(DEFAULT_STATE);
         }
-        readExcalidraw(props.href)
+        readExcalidraw(props.filePath)
             .then((state) => setInitialData(state))
             .catch((error) => {
-                console.error("parse error on " + props.href, error);
+                console.error("parse error on " + props.filePath, error);
                 setInitialData(DEFAULT_STATE);
             });
         return () => {
@@ -104,6 +174,7 @@ function ExcalidrawWrapper(props) {
                     ref={excalidrawRef}
                     initialData={initialData}
                     onChange={onChange}
+                    onPointerUpdate={onPointerUpdate}
                     viewModeEnabled={viewModeEnabled}
                     zenModeEnabled={zenModeEnabled}
                     gridModeEnabled={gridModeEnabled}
@@ -114,7 +185,7 @@ function ExcalidrawWrapper(props) {
 }
 
 ExcalidrawWrapper.prototype.propTypes = {
-    href: PropTypes.string,
+    filePath: PropTypes.string,
     preview: PropTypes.object
 };
 

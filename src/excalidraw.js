@@ -6,11 +6,13 @@ import { CompositeDisposable } from "event-kit";
 import fs from "fs";
 import path from "path";
 import dayjs from "dayjs";
+import createRemarkImg from "./remark-img";
 
 const insertText = (text) => {
     const cm = inkdrop.getActiveEditor().cm;
     cm.replaceSelection(text + "\n");
 };
+
 const createExcalidraw = (dirPath) => {
     const DEFAULT_STATE = {
         type: "excalidraw",
@@ -33,9 +35,16 @@ module.exports = {
     origAComponent: null,
     config: {
         saveDir: {
-            title: "save directory for .excalidraw files",
+            title: "A saving directory for .excalidraw files",
+            description: "Put the path to directory for savind .excalidraw files",
             type: "string",
             default: ""
+        },
+        inlineImageWidgets: {
+            title: "Enable integration for inline image widgets",
+            description: "If it is enabled, prefer to use image tag instead of link to .excalidraw",
+            type: "boolean",
+            default: false
         }
     },
     activate() {
@@ -50,7 +59,6 @@ module.exports = {
                 }
             })
         );
-        window.addEventListener("message", this.handleMessageFromFrame, false);
     },
 
     deactivate() {
@@ -58,17 +66,19 @@ module.exports = {
             this.unsetLinkComponent();
         }
         subscriptions.dispose();
-        subscriptions.window.removeEventListener("message", this.handleMessageFromFrame, false);
     },
 
     setupLinkComponent() {
         const OrigA = markdownRenderer.remarkReactComponents.a;
-        const RemarkAnchor = createRemarkAnchor(OrigA);
-        markdownRenderer.remarkReactComponents.a = RemarkAnchor;
+        markdownRenderer.remarkReactComponents.a = createRemarkAnchor(OrigA);
         this.origAComponent = OrigA;
+        const OrigImg = markdownRenderer.remarkReactComponents.img;
+        markdownRenderer.remarkReactComponents.img = createRemarkImg(OrigA);
+        this.orgImgComponent = OrigImg;
     },
 
     unsetLinkComponent() {
         markdownRenderer.remarkReactComponents.a = this.origAComponent;
+        markdownRenderer.remarkReactComponents.img = this.orgImgComponent;
     }
 };

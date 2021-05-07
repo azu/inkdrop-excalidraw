@@ -2,20 +2,22 @@ import * as React from "react";
 import PropTypes from "prop-types";
 import providers from "./providers";
 
-export default function createRemarkAnchor(OrigA) {
-    return class RemarkAnchor extends React.Component {
+export default function createRemarkImg(OrigA) {
+    return class RemarkImg extends React.Component {
         static propTypes = {
-            href: PropTypes.string,
+            alt: PropTypes.string,
+            src: PropTypes.string,
             children: PropTypes.node
         };
 
         render() {
-            const [label] = Array.isArray(this.props.children) ? this.props.children : [];
-            if (typeof label === "string" && label.startsWith("!Excalidraw")) {
+            const alt = this.props.alt;
+            if (typeof alt === "string" && alt === "Excalidraw") {
                 for (const provider of providers) {
-                    if (provider.test(this.props.href)) {
+                    if (provider.test(this.props.src)) {
+                        const filePath = this.props.src.replace(/\.svg(\?updated=.*)?$/, "");
                         const Component = provider.default;
-                        return <Component filePath={this.props.href} />;
+                        return <Component filePath={filePath} />;
                     }
                 }
             }

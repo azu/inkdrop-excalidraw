@@ -28,7 +28,8 @@ Preview the note, and you can edit the file as excalidraw file.
 
 You can change save dir from Preferences window:
 
-- **saveDir**: path to save directory
+- **saveDir**: A saving directory for .excalidraw files
+- **inlineImageWidgets**: Enable integration for inline image widgets
 
 ## Context Menu
 
