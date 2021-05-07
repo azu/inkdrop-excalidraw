@@ -54,7 +54,11 @@ module.exports = {
         subscriptions.add(
             inkdrop.commands.add(document.body, {
                 "excalidraw:create": () => {
-                    const outputFilePath = createExcalidraw(inkdrop.config.get("excalidraw.saveDir"));
+                    const saveDir = inkdrop.config.get("excalidraw.saveDir");
+                    if (!saveDir) {
+                        return alert("Please set saveDir of excalidraw plugin");
+                    }
+                    const outputFilePath = createExcalidraw(saveDir);
                     insertText(`[!Excalidraw](${outputFilePath})`);
                 }
             })
