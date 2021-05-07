@@ -1,0 +1,23 @@
+.inkdrop-excalidraw-container {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+}
+
+.inkdrop-excalidraw-fullscreen {
+    width: 100%;
+    height: 100%;
+}
+
+.inkdrop-excalidraw-toolbar {
+    display: flex;
+    justify-content: flex-end;
+    background: transparent;
+    padding: 0.5em;
+}
+
+.inkdrop-excalidraw-fullscreenButton {
+    right: 0;
+    border: none;
+    outline: none;
+    background: #fff;
+}

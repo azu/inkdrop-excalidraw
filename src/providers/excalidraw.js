@@ -7,6 +7,8 @@ import { useDebouncedCallback } from "use-debounce";
 import { connect } from "react-redux";
 import { _clearAppState, _clearElements } from "./helper";
 import dayjs from "dayjs";
+import { FullScreen, useFullScreenHandle } from "react-full-screen";
+import { BsArrowsFullscreen } from "react-icons/bs";
 
 export function test(filePathOrUrl) {
     if (!filePathOrUrl) {
@@ -111,6 +113,8 @@ function ExcalidrawWrapper(props) {
     const [initialData, setInitialData] = useState(null);
     const [zenModeEnabled] = useState(false);
     const [gridModeEnabled] = useState(false);
+    const handle = useFullScreenHandle();
+
     const onChange = useDebouncedCallback(
         useCallback(
             (elements, appState) => {
@@ -159,26 +163,26 @@ function ExcalidrawWrapper(props) {
         });
     }, [initialData]);
     return (
-        <div
-            style={{
-                width: "100%",
-                height: "600px",
-                minWidth: "800px",
-                minHeight: "600px",
-                maxWidth: "100%",
-                maxHeight: "100%"
-            }}
-        >
+        <div className={"inkdrop-excalidraw-container"}>
             {Comp && (
-                <Comp
-                    ref={excalidrawRef}
-                    initialData={initialData}
-                    onChange={onChange}
-                    onPointerUpdate={onPointerUpdate}
-                    viewModeEnabled={viewModeEnabled}
-                    zenModeEnabled={zenModeEnabled}
-                    gridModeEnabled={gridModeEnabled}
-                />
+                <>
+                    <div className={"inkdrop-excalidraw-toolbar"}>
+                        <button onClick={handle.enter} className={"inkdrop-excalidraw-fullscreenButton"}>
+                            <BsArrowsFullscreen />
+                        </button>
+                    </div>
+                    <FullScreen handle={handle} className={"inkdrop-excalidraw-fullscreen"}>
+                        <Comp
+                            ref={excalidrawRef}
+                            initialData={initialData}
+                            onChange={onChange}
+                            onPointerUpdate={onPointerUpdate}
+                            viewModeEnabled={viewModeEnabled}
+                            zenModeEnabled={zenModeEnabled}
+                            gridModeEnabled={gridModeEnabled}
+                        />
+                    </FullScreen>
+                </>
             )}
         </div>
     );

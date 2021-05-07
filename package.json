@@ -33,6 +33,8 @@
     "@excalidraw/excalidraw": "^0.7.0",
     "dayjs": "^1.10.4",
     "prop-types": "^15.7.2",
+    "react-full-screen": "^1.0.2",
+    "react-icons": "^4.2.0",
     "use-debounce": "^6.0.1",
     "use-on-visible": "^1.0.8"
   },

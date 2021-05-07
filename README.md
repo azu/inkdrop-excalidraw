@@ -4,6 +4,12 @@ Allows Inkdrop to embed Excalidraw contents to a note.
 
 Note that printing and exporting are not supported since external contents are loaded asynchronously.
 
+## Features
+
+- Save `.excalidraw` and `.exalidraw.svg` automatically
+- Integrate with inkdrop's inline image widgets
+- FullScreen support
+
 ## Install
 
 ```sh
