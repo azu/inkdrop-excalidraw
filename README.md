@@ -30,6 +30,7 @@ You can change save dir from Preferences window:
 
 - **saveDir**: A saving directory for .excalidraw files
 - **inlineImageWidgets**: Enable integration for inline image widgets
+    - Replace link to `.excalidraw` with img tag to `.excalidraw.svg` automatically
 
 ## Context Menu
 
