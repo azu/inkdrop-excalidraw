@@ -34,11 +34,6 @@ You can change save dir from Preferences window:
 
 - **Create Excalidraw**: create `.excalidraw` file to **saveDir** and put the link into current selection
 
-## Limitations
-
-- You can't search embedded contents with keywords
-- Printing and exporting not supported as they are loaded asynchronously
-
 ## License
 
 MIT
