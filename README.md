@@ -18,6 +18,12 @@ ipm install excalidraw
 
 ## usage
 
+1. Setup **saveDir** from plugins' preferences window.
+2. Open a note and Click "Create Excalidraw" of Context menu
+3. Preview the node and edit Excalidraw!
+
+### details of mechanism
+
 Write a link with `!Excalidraw` caption like:
 
 ```markdown
