@@ -15,7 +15,7 @@ export default function createRemarkAnchor(OrigA) {
                 for (const provider of providers) {
                     if (provider.test(this.props.href)) {
                         const Component = provider.default;
-                        return <Component filePath={this.props.href} />;
+                        return <Component fileUrl={this.props.href} />;
                     }
                 }
             }

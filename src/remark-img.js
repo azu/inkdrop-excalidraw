@@ -15,9 +15,9 @@ export default function createRemarkImg(OrigA) {
             if (typeof alt === "string" && alt === "Excalidraw") {
                 for (const provider of providers) {
                     if (provider.test(this.props.src)) {
-                        const filePath = this.props.src.replace(/\.png(\?updated=.*)?$/, "");
+                        const fileUrl = this.props.src.replace(/\.png(\?updated=.*)?$/, "");
                         const Component = provider.default;
-                        return <Component filePath={filePath} />;
+                        return <Component fileUrl={fileUrl} />;
                     }
                 }
             }

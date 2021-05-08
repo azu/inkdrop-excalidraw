@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import url from "url";
 import React from "react";
 import { useEffect, useState, useRef, useCallback } from "react";
 import PropTypes from "prop-types";
@@ -14,7 +15,8 @@ export function test(filePathOrUrl) {
     if (!filePathOrUrl) {
         return false;
     }
-    if (!path.isAbsolute(filePathOrUrl)) {
+    const isLocalPath = path.isAbsolute(filePathOrUrl) || filePathOrUrl.startsWith("file:");
+    if (!isLocalPath) {
         return false;
     }
     try {
@@ -25,14 +27,15 @@ export function test(filePathOrUrl) {
     }
 }
 
-const readExcalidraw = async (filePath) => {
+const readExcalidraw = async (fileUrl) => {
+    const filePath = url.fileURLToPath(fileUrl);
     const content = await fs.promises.readFile(filePath, "utf-8");
     return JSON.parse(content);
 };
 
 let exportToBlob = null;
 
-const updateNoteExcalidrawWithImage = (filePath) => {
+const updateNoteExcalidrawWithImage = ({ filePath, fileUrl }) => {
     /**
      * @type {CodeMirror.Editor}
      */
@@ -41,27 +44,29 @@ const updateNoteExcalidrawWithImage = (filePath) => {
 
     const updatedText = text
         // Update timstamp ![Excalidraw](/path/to/file.excalidraw.png?updated=timestamp)
-        .replace(/(!\[Excalidraw]\((.*\.excalidraw)\.png\?updated=.*?\))/g, (all, link, matchFilePath) => {
-            if (matchFilePath !== filePath) {
+        .replace(/(!\[Excalidraw]\((.*\.excalidraw)\.png\?updated=.*?\))/g, (all, link, matchFileUrl) => {
+            if (matchFileUrl !== fileUrl) {
                 return all; // no change
             }
-            const imageFilePath = matchFilePath + ".png";
+            const imageFilePath = filePath + ".png";
             if (fs.existsSync(imageFilePath)) {
+                const imageFileUrl = fileUrl + ".png";
                 const timeStamp = "?updated=" + dayjs().format("YYYY-MM-DD--HH-mm-ss");
-                return `![Excalidraw](${imageFilePath + timeStamp})`;
+                return `![Excalidraw](${imageFileUrl + timeStamp})`;
             } else {
                 return all;
             }
         })
         // [!Excalidraw](/path/to/file.excalidraw) → ![Excalidraw](/path/to/file.excalidraw.png?updated=timestamp)
-        .replace(/(\[!Excalidraw]\((.*\.excalidraw)\))/g, (all, link, matchFilePath) => {
-            if (matchFilePath !== filePath) {
+        .replace(/(\[!Excalidraw]\((.*\.excalidraw)\))/g, (all, link, matchFileUrl) => {
+            if (matchFileUrl !== fileUrl) {
                 return all; // no change
             }
-            const imageFilePath = matchFilePath + ".png";
+            const imageFilePath = filePath + ".png";
             if (fs.existsSync(imageFilePath)) {
                 const timeStamp = "?updated=" + dayjs().format("YYYY-MM-DD--HH-mm-ss");
-                return `![Excalidraw](${imageFilePath + timeStamp})`;
+                const imageFileUrl = fileUrl + ".png";
+                return `![Excalidraw](${imageFileUrl + timeStamp})`;
             } else {
                 return all;
             }
@@ -72,10 +77,11 @@ const updateNoteExcalidrawWithImage = (filePath) => {
     }
 };
 
-const writeExcalidraw = async (filePath, { elements, appState }) => {
+const writeExcalidraw = async (fileUrl, { elements, appState }) => {
     if (elements.length === 0) {
         return; // does not save when no element
     }
+    const filePath = url.fileURLToPath(fileUrl);
     if (!fs.existsSync(filePath)) {
         return;
     }
@@ -105,7 +111,10 @@ const writeExcalidraw = async (filePath, { elements, appState }) => {
 
     const enabledInlineImageWidgets = inkdrop.config.get("excalidraw.inlineImageWidgets");
     if (enabledInlineImageWidgets) {
-        updateNoteExcalidrawWithImage(filePath);
+        updateNoteExcalidrawWithImage({
+            filePath,
+            fileUrl
+        });
     }
 };
 
@@ -127,8 +136,8 @@ function ExcalidrawWrapper(props) {
                 if (!updateAtLeastOne) {
                     return;
                 }
-                writeExcalidraw(props.filePath, { elements, appState }).catch((error) => {
-                    console.error("save error on " + props.filePath, error);
+                writeExcalidraw(props.fileUrl, { elements, appState }).catch((error) => {
+                    console.error("save error on " + props.fileUrl, error);
                 });
             },
             [excalidrawRef, updateAtLeastOne]
@@ -144,13 +153,13 @@ function ExcalidrawWrapper(props) {
             elements: [],
             appState: { viewBackgroundColor: "#FFFFFF" }
         };
-        if (!props.filePath.endsWith(".excalidraw")) {
+        if (!props.fileUrl.endsWith(".excalidraw")) {
             return setInitialData(DEFAULT_STATE);
         }
-        readExcalidraw(props.filePath)
+        readExcalidraw(props.fileUrl)
             .then((state) => setInitialData(state))
             .catch((error) => {
-                console.error("parse error on " + props.filePath, error);
+                console.error("parse error on " + props.fileUrl, error);
                 setInitialData(DEFAULT_STATE);
             });
         return () => {
@@ -195,7 +204,7 @@ function ExcalidrawWrapper(props) {
 }
 
 ExcalidrawWrapper.prototype.propTypes = {
-    filePath: PropTypes.string,
+    fileUrl: PropTypes.string,
     preview: PropTypes.object
 };
 

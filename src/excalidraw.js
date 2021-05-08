@@ -4,6 +4,7 @@ import { markdownRenderer } from "inkdrop";
 import { CompositeDisposable } from "event-kit";
 
 import fs from "fs";
+import url from "url";
 import path from "path";
 import dayjs from "dayjs";
 import createRemarkImg from "./remark-img";
@@ -13,6 +14,11 @@ const insertText = (text) => {
     cm.replaceSelection(text + "\n");
 };
 
+/**
+ * Create new .excalidraw file and return file:/// url
+ * @param dirPath
+ * @returns {URL}
+ */
 const createExcalidraw = (dirPath) => {
     const DEFAULT_STATE = {
         type: "excalidraw",
@@ -28,7 +34,7 @@ const createExcalidraw = (dirPath) => {
     }
     const filePath = path.join(dirPath, dayjs().format("YYYY-MM-DD--HH-mm-ss") + ".excalidraw");
     fs.writeFileSync(filePath, JSON.stringify(DEFAULT_STATE), "utf-8");
-    return filePath;
+    return url.pathToFileURL(filePath);
 };
 const subscriptions = new CompositeDisposable();
 module.exports = {
