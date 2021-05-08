@@ -42,7 +42,7 @@ const updateNoteExcalidrawWithImage = ({ filePath, fileUrl }) => {
     const text = cm.getValue();
 
     const updatedText = text
-        // Update timstamp ![Excalidraw](/path/to/file.excalidraw.png?updated=timestamp)
+        // Update timstamp ![Excalidraw](file:///path/to/file.excalidraw.png?updated=timestamp)
         .replace(/(!\[Excalidraw]\((.*\.excalidraw)\.png\?updated=.*?\))/g, (all, link, matchFileUrl) => {
             if (matchFileUrl !== fileUrl) {
                 return all; // no change
@@ -56,7 +56,7 @@ const updateNoteExcalidrawWithImage = ({ filePath, fileUrl }) => {
                 return all;
             }
         })
-        // [!Excalidraw](/path/to/file.excalidraw) → ![Excalidraw](/path/to/file.excalidraw.png?updated=timestamp)
+        // [!Excalidraw](file:///path/to/file.excalidraw) → ![Excalidraw](file:///path/to/file.excalidraw.png?updated=timestamp)
         .replace(/(\[!Excalidraw]\((.*\.excalidraw)\))/g, (all, link, matchFileUrl) => {
             if (matchFileUrl !== fileUrl) {
                 return all; // no change
