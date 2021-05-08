@@ -24,13 +24,13 @@ ipm install excalidraw
 
 ### details of mechanism
 
-Write a link with `!Excalidraw` caption like:
+Write a link with `!Excalidraw` caption and path to `.excalidraw`:
 
 ```markdown
 [!Excalidraw](file:///path/to/file.excalidraw)
 ```
 
-or 
+or, Write a img with `Excalidraw` alt and path to `.excalidraw.png`:
 
 ```markdown
 ![Excalidraw](file:///path/to/file.excalidraw.png)
