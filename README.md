@@ -19,7 +19,7 @@ ipm install excalidraw
 ## usage
 
 1. Setup **saveDir** option from inkdrop's preferences window > plugins
-2. Open a note and Click "Create Excalidraw" of Context menu
+2. Open a note and Click "**Create Excalidraw**" of Context menu
 3. Preview the node and edit Excalidraw!
 
 ### details of mechanism
