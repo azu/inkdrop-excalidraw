@@ -42,7 +42,7 @@ module.exports = {
     config: {
         saveDir: {
             title: "A saving directory for .excalidraw files",
-            description: "Put the path to directory for savind .excalidraw files. e.g. /path/to/excalidraw-files/",
+            description: "Put the path to directory for saving .excalidraw files. e.g. /path/to/excalidraw-files/",
             type: "string",
             default: ""
         },
