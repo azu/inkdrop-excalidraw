@@ -42,7 +42,7 @@ module.exports = {
     config: {
         saveDir: {
             title: "A saving directory for .excalidraw files",
-            description: "Put the path to directory for savind .excalidraw files",
+            description: "Put the path to directory for savind .excalidraw files. e.g. /path/to/excalidraw-files/",
             type: "string",
             default: ""
         },
@@ -65,7 +65,7 @@ module.exports = {
                         return alert("Please set saveDir of excalidraw plugin");
                     }
                     const outputFilePath = createExcalidraw(saveDir);
-                    insertText(`[!Excalidraw](${outputFilePath})`);
+                    insertText(`[!Excalidraw](${outputFilePath.toString()})`);
                 }
             })
         );

@@ -21,13 +21,13 @@ ipm install excalidraw
 Write a link with `!Excalidraw` caption like:
 
 ```markdown
-[!Excalidraw](/path/to/file.excalidraw)
+[!Excalidraw](file:///path/to/file.excalidraw)
 ```
 
 or 
 
 ```markdown
-![Excalidraw](/path/to/file.excalidraw.png)
+![Excalidraw](file:///path/to/file.excalidraw.png)
 ```
 
 Preview the note, and you can edit the file as excalidraw file.
