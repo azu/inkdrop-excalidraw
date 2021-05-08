@@ -15,8 +15,7 @@ export function test(filePathOrUrl) {
     if (!filePathOrUrl) {
         return false;
     }
-    const isLocalPath = path.isAbsolute(filePathOrUrl) || filePathOrUrl.startsWith("file:");
-    if (!isLocalPath) {
+    if (!filePathOrUrl.startsWith("file:")) {
         return false;
     }
     try {
