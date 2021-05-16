@@ -6,7 +6,6 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import PropTypes from "prop-types";
 import { useDebouncedCallback } from "use-debounce";
 import { connect } from "react-redux";
-import { _clearAppState, _clearElements } from "./helper";
 import dayjs from "dayjs";
 import { FullScreen, useFullScreenHandle } from "react-full-screen";
 import { BsArrowsFullscreen } from "react-icons/bs";
