@@ -6,7 +6,6 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import PropTypes from "prop-types";
 import { useDebouncedCallback } from "use-debounce";
 import { connect } from "react-redux";
-import { _clearAppState, _clearElements } from "./helper";
 import dayjs from "dayjs";
 import { FullScreen, useFullScreenHandle } from "react-full-screen";
 import { BsArrowsFullscreen } from "react-icons/bs";
@@ -32,7 +31,14 @@ const readExcalidraw = async (fileUrl) => {
     return JSON.parse(content);
 };
 
+/**
+ * @type {import("@excalidraw/excalidraw").exportToBlob | null}
+ */
 let exportToBlob = null;
+/**
+ * @type {import("@excalidraw/excalidraw").serializeAsJSON | null}
+ */
+let serializeAsJSON = null;
 
 const updateNoteExcalidrawWithImage = ({ filePath, fileUrl }) => {
     /**
@@ -77,6 +83,9 @@ const updateNoteExcalidrawWithImage = ({ filePath, fileUrl }) => {
 };
 
 const writeExcalidraw = async (fileUrl, { elements, appState }) => {
+    if (!serializeAsJSON) {
+        return;
+    }
     if (elements.length === 0) {
         return; // does not save when no element
     }
@@ -99,14 +108,8 @@ const writeExcalidraw = async (fileUrl, { elements, appState }) => {
             fileReader.readAsArrayBuffer(blob);
         });
     }
-    const serializedData = {
-        type: "excalidraw",
-        version: 2,
-        source: "file://",
-        elements: _clearElements(elements),
-        appState: _clearAppState(appState)
-    };
-    await fs.promises.writeFile(filePath, JSON.stringify(serializedData), "utf-8");
+    const serializedData = serializeAsJSON(elements, appState);
+    await fs.promises.writeFile(filePath, serializedData, "utf-8");
 
     const enabledInlineImageWidgets = inkdrop.config.get("excalidraw.inlineImageWidgets");
     if (enabledInlineImageWidgets) {
@@ -173,6 +176,7 @@ function ExcalidrawWrapper(props) {
         window.EXCALIDRAW_ASSET_PATH = path.join(__dirname, "../../resources") + "/";
         import("@excalidraw/excalidraw").then((comp) => {
             exportToBlob = comp.exportToBlob;
+            serializeAsJSON = comp.serializeAsJSON;
             setComp(comp.default);
         });
     }, [initialData]);
