@@ -1,7 +1,7 @@
 {
   "name": "excalidraw",
   "main": "./lib/excalidraw.js",
-  "version": "2.3.0",
+  "version": "2.3.1",
   "description": "Allows Inkdrop to embed Excalidraw contents to a note. ",
   "keywords": [
     "inkdrop"
